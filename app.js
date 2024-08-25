@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-
+const cors = require("cors");
 const mongoose = require("mongoose");
 
 const USER_NAME = "divya112";
@@ -22,6 +22,8 @@ mongoose
   });
 
 const Blog = require("./Models/BlogPost");
+app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Hello World");
@@ -30,8 +32,8 @@ app.get("/", (req, res) => {
 //fetch all the blog from the database
 app.get("/blog", (req, res) => {
   Blog.find()
-    .then((res) => {
-      console.log(res);
+    .then((result) => {
+      res.send(result);
     })
     .catch((err) => {
       console.log(err);
@@ -42,8 +44,8 @@ app.get("/blog", (req, res) => {
 app.get("/blog/:id", (req, res) => {
   const id = req.params.id;
   Blog.findById(id)
-    .then((res) => {
-      console.log(res);
+    .then((result) => {
+      res.send(result);
     })
     .catch((err) => {
       console.log(err);
@@ -57,20 +59,28 @@ app.post("/blog", (req, res) => {
     .save()
     .then((res) => {
       console.log(res);
+      res.send(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+     
+
+//delete the blog by id from mongodb
+app.delete("/blog/:id", (req, res) => {
+  const id = req.params.id;
+  Blog.findByIdAndDelete(id)
+    .then((res) => {
+      res.send(res);
     })
     .catch((err) => {
       console.log(err);
     });
 });
 
-//delte the blog by id from mongodb
-app.delete("/blog/:id", (req, res) => {
-    const id = req.params.id;
-  Blog.findByIdAndDelete(id)
-    .then((res) => {
-      console.log("deleted successfully");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+// Error route
+
+app.use((req, res) => {
+  res.status(404).send("page not found");
 });
